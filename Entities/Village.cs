@@ -13,5 +13,5 @@ public class Village
     public int? LastModifiedBy { get; set; }
     public DateTime? LastModifiedOn { get; set; }
 
-    public Taluka Taluka { get; set; } = null!;
+    public District District { get; set; } = null!;  // FIXED: was Taluka, now District
 }

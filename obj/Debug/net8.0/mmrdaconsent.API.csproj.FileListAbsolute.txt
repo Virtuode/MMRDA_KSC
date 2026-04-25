@@ -146,3 +146,4 @@ C:\Users\patha\Documents\consentapi\mmrdaconsent.APi\obj\Debug\net8.0\refint\mmr
 C:\Users\patha\Documents\consentapi\mmrdaconsent.APi\obj\Debug\net8.0\mmrdaconsent.API.pdb
 C:\Users\patha\Documents\consentapi\mmrdaconsent.APi\obj\Debug\net8.0\mmrdaconsent.API.genruntimeconfig.cache
 C:\Users\patha\Documents\consentapi\mmrdaconsent.APi\obj\Debug\net8.0\ref\mmrdaconsent.API.dll
+C:\Users\patha\Documents\consentapi\mmrdaconsent.API\obj\Debug\net8.0\mmrdaconsent.API.sourcelink.json

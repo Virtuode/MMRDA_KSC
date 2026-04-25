@@ -14,4 +14,5 @@ public class District
 
     public State State { get; set; } = null!;
     public ICollection<Taluka> Talukas { get; set; } = new List<Taluka>();
+    public ICollection<Village> Villages { get; set; } = new List<Village>(); // ADDED
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("mmrdaconsent.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+611f5458a41daa6ce1ff0b2cdf6619a76731ce9a")]
 [assembly: System.Reflection.AssemblyProductAttribute("mmrdaconsent.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("mmrdaconsent.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

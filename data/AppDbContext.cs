@@ -38,7 +38,6 @@ public class AppDbContext : DbContext
             entity.HasKey(a => a.ApplicationID);
             entity.HasIndex(a => a.ReferenceNo).IsUnique().HasDatabaseName("IX_Application_ReferenceNo");
 
-            // Property/Column Mappings
             entity.Property(a => a.Age).HasColumnName("Age");
             entity.Property(a => a.SelectedDeclaration).HasColumnName("SelectedDeclaration");
             entity.Property(a => a.ConsentSignedAt).HasColumnName("ConsentSignedAt");
@@ -49,7 +48,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<LandDetail>(entity =>
         {
-            entity.ToTable("LandDetaill"); // Note: Double 'l' as per DB schema
+            entity.ToTable("LandDetaill"); // Double 'l' as per DB
             entity.HasKey(l => l.LandDetailID);
             entity.Property(l => l.TotalAreaHecter).HasPrecision(18, 2);
         });
@@ -68,7 +67,7 @@ public class AppDbContext : DbContext
         });
 
         // ============================================================
-        // 2. MASTER DATA MAPPINGS (States, Districts, etc.)
+        // 2. MASTER DATA MAPPINGS
         // ============================================================
 
         modelBuilder.Entity<State>(entity =>
@@ -107,31 +106,27 @@ public class AppDbContext : DbContext
         });
 
         // ============================================================
-        // 3. RELATIONSHIPS (Foreign Keys)
+        // 3. RELATIONSHIPS
         // ============================================================
 
-        // Enrollment <-> Application
         modelBuilder.Entity<Application>()
             .HasOne(a => a.Enrollment)
             .WithMany(e => e.Applications)
             .HasForeignKey(a => a.EnrollmentID)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Application <-> LandDetails
         modelBuilder.Entity<LandDetail>()
             .HasOne(l => l.Application)
             .WithMany(a => a.LandDetails)
             .HasForeignKey(l => l.ApplicationID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Application <-> LocationDetails
         modelBuilder.Entity<LocationDetail>()
             .HasOne(l => l.Application)
             .WithMany(a => a.LocationDetails)
             .HasForeignKey(l => l.ApplicationID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Master Data Hierarchy
         modelBuilder.Entity<District>()
             .HasOne(d => d.State).WithMany(s => s.Districts)
             .HasForeignKey(d => d.StateID).OnDelete(DeleteBehavior.Restrict);
@@ -144,8 +139,9 @@ public class AppDbContext : DbContext
             .HasOne(t => t.District).WithMany(d => d.Talukas)
             .HasForeignKey(t => t.DistrictID).OnDelete(DeleteBehavior.Restrict);
 
+        // FIXED: Village → District (was Village → Taluka, wrong FK)
         modelBuilder.Entity<Village>()
-            .HasOne(v => v.Taluka).WithMany(t => t.Villages)
+            .HasOne(v => v.District).WithMany(d => d.Villages)
             .HasForeignKey(v => v.DistrictID).OnDelete(DeleteBehavior.Restrict);
     }
 }
