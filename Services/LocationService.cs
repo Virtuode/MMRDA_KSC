@@ -39,7 +39,8 @@ public class LocationService : ILocationService
             .OrderBy(t => t.TalukaName)
             .ToListAsync();
 
-    public async Task<List<VillageDto>> GetVillagesByTalukaAsync(int districtId) =>
+    // FIXED: was GetVillagesByTalukaAsync(int districtId) — confusing mismatch
+    public async Task<List<VillageDto>> GetVillagesByDistrictAsync(int districtId) =>
         await _context.Villages
             .Where(v => v.DistrictID == districtId && v.IsActive && !v.Deleted)
             .Select(v => new VillageDto(v.VillageID, v.DistrictID, v.VillageName))

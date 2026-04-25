@@ -55,6 +55,22 @@ public class ApplicationService : IApplicationService
         var enrollment = await _context.Enrollments.FindAsync(enrollmentId)
             ?? throw new KeyNotFoundException($"Enrollment {enrollmentId} not found.");
 
+        // FIXED: resolve State and City names so the varchar columns are populated
+        string? stateName = null;
+        string? cityName = null;
+
+        if (dto.StateID.HasValue)
+            stateName = await _context.States
+                .Where(s => s.StateID == dto.StateID.Value)
+                .Select(s => s.StateName)
+                .FirstOrDefaultAsync();
+
+        if (dto.CityID.HasValue)
+            cityName = await _context.Cities
+                .Where(c => c.CityID == dto.CityID.Value)
+                .Select(c => c.CityName)
+                .FirstOrDefaultAsync();
+
         enrollment.FirstName = dto.FirstName;
         enrollment.MiddleName = dto.MiddleName;
         enrollment.LastName = dto.LastName;
@@ -63,7 +79,9 @@ public class ApplicationService : IApplicationService
         enrollment.Address1 = dto.Address1;
         enrollment.Address2 = dto.Address2;
         enrollment.StateID = dto.StateID;
+        enrollment.State = stateName;       // FIXED: was never set
         enrollment.CityID = dto.CityID;
+        enrollment.City = cityName;         // FIXED: was never set
         enrollment.Pincode = dto.Pincode;
         enrollment.LastModifiedOn = DateTime.Now;
 
@@ -77,15 +95,12 @@ public class ApplicationService : IApplicationService
 
     public async Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto dto)
     {
-        // Verify enrollment exists
         var enrollment = await _context.Enrollments.FindAsync(dto.EnrollmentID)
             ?? throw new KeyNotFoundException($"Enrollment {dto.EnrollmentID} not found.");
 
-        // Use a transaction — all or nothing
         await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // 1. Create Application
             var application = new Application
             {
                 EnrollmentID = dto.EnrollmentID,
@@ -97,7 +112,6 @@ public class ApplicationService : IApplicationService
             _context.Applications.Add(application);
             await _context.SaveChangesAsync();
 
-            // 2. Save Land Detail
             var land = new LandDetail
             {
                 ApplicationID = application.ApplicationID,
@@ -110,13 +124,38 @@ public class ApplicationService : IApplicationService
             };
             _context.LandDetails.Add(land);
 
-            // 3. Save Location Detail
+            // FIXED: resolve District / Taluka / Village names before saving
+            string? districtName = null;
+            string? talukaName = null;
+            string? villageName = null;
+
+            if (dto.DistrictID.HasValue)
+                districtName = await _context.Districts
+                    .Where(d => d.DistrictID == dto.DistrictID.Value)
+                    .Select(d => d.DistrictName)
+                    .FirstOrDefaultAsync();
+
+            if (dto.TalukaID.HasValue)
+                talukaName = await _context.Talukas
+                    .Where(t => t.TalukaID == dto.TalukaID.Value)
+                    .Select(t => t.TalukaName)
+                    .FirstOrDefaultAsync();
+
+            if (dto.VillageID.HasValue)
+                villageName = await _context.Villages
+                    .Where(v => v.VillageID == dto.VillageID.Value)
+                    .Select(v => v.VillageName)
+                    .FirstOrDefaultAsync();
+
             var location = new LocationDetail
             {
                 ApplicationID = application.ApplicationID,
                 DistrictID = dto.DistrictID,
+                District = districtName,    // FIXED: was always null
                 TalukaID = dto.TalukaID,
+                Taluka = talukaName,        // FIXED: was always null
                 VillageID = dto.VillageID,
+                Village = villageName,      // FIXED: was always null
                 CompensationTypeID = dto.CompensationTypeID,
                 IsActive = true,
                 Deleted = false,
@@ -174,7 +213,7 @@ public class ApplicationService : IApplicationService
         if (result == null)
         {
             _logger.LogWarning("Application not found for ID={ID}", dto.ApplicationID);
-            return null!; // or throw
+            return null!;
         }
 
         return result;
@@ -191,7 +230,6 @@ public class ApplicationService : IApplicationService
             .FirstOrDefaultAsync(a => a.ApplicationID == dto.ApplicationID && !a.Deleted)
             ?? throw new KeyNotFoundException($"Application {dto.ApplicationID} not found.");
 
-        // Validation before submit
         var errors = new List<string>();
 
         if (!application.IsConsentGiven)
@@ -211,7 +249,7 @@ public class ApplicationService : IApplicationService
 
         application.IsSubmitted = true;
         application.SubmittedAt = DateTime.Now;
-        application.StageID = 1; // submitted stage
+        application.StageID = 1;
         application.LastModifiedOn = DateTime.Now;
 
         await _context.SaveChangesAsync();
@@ -226,7 +264,6 @@ public class ApplicationService : IApplicationService
 
     private static string GenerateReferenceNo()
     {
-        // Format: MMRDA-YYYYMMDD-XXXXXXXX
         string datePart = DateTime.Now.ToString("yyyyMMdd");
         string randomPart = Guid.NewGuid().ToString("N")[..8].ToUpper();
         return $"MMRDA-{datePart}-{randomPart}";
