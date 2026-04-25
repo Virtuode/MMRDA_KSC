@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<Taluka> Talukas { get; set; }
     public DbSet<Village> Villages { get; set; }
 
+    // Add this DbSet alongside the others
+    public DbSet<ApplicationDocument> ApplicationDocuments { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // ============================================================
@@ -57,6 +59,17 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("LocationDetail");
             entity.HasKey(l => l.LocationDetailID);
+        });
+
+        modelBuilder.Entity<ApplicationDocument>(entity =>
+        {
+            entity.ToTable("ApplicationDocument");
+            entity.HasKey(d => d.DocumentID);
+            entity.Property(d => d.DocumentID).ValueGeneratedOnAdd();
+
+            // Index for fast lookup by application
+            entity.HasIndex(d => d.ApplicationID)
+                  .HasDatabaseName("IX_ApplicationDocument_ApplicationID");
         });
 
         modelBuilder.Entity<OTP>(entity =>
@@ -125,6 +138,15 @@ public class AppDbContext : DbContext
             .HasOne(l => l.Application)
             .WithMany(a => a.LocationDetails)
             .HasForeignKey(l => l.ApplicationID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
+
+        // Relationship: Application → ApplicationDocuments
+        modelBuilder.Entity<ApplicationDocument>()
+            .HasOne(d => d.Application)
+            .WithMany(a => a.Documents)
+            .HasForeignKey(d => d.ApplicationID)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<District>()

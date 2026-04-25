@@ -219,46 +219,8 @@ public class ApplicationService : IApplicationService
         return result;
     }
 
-    // ── FINAL SUBMIT ─────────────────────────────────────────────────────
 
-    public async Task<FinalSubmitResponseDto> FinalSubmitAsync(FinalSubmitDto dto)
-    {
-        var application = await _context.Applications
-            .Include(a => a.Enrollment)
-            .Include(a => a.LandDetails.Where(l => !l.Deleted))
-            .Include(a => a.LocationDetails.Where(l => !l.Deleted))
-            .FirstOrDefaultAsync(a => a.ApplicationID == dto.ApplicationID && !a.Deleted)
-            ?? throw new KeyNotFoundException($"Application {dto.ApplicationID} not found.");
 
-        var errors = new List<string>();
-
-        if (!application.IsConsentGiven)
-            errors.Add("Consent has not been given.");
-
-        if (application.IsSubmitted)
-            errors.Add("Application is already submitted.");
-
-        if (!application.LandDetails.Any())
-            errors.Add("No land details found.");
-
-        if (!application.LocationDetails.Any())
-            errors.Add("No location details found.");
-
-        if (errors.Any())
-            return new FinalSubmitResponseDto(false, string.Join(" | ", errors), null);
-
-        application.IsSubmitted = true;
-        application.SubmittedAt = DateTime.Now;
-        application.StageID = 1;
-        application.LastModifiedOn = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("[Submit] ApplicationID={ID} submitted. Ref={Ref}",
-            dto.ApplicationID, application.ReferenceNo);
-
-        return new FinalSubmitResponseDto(true, "Application submitted successfully.", application.ReferenceNo);
-    }
 
     // ── Private Helpers ──────────────────────────────────────────────────
 
@@ -290,4 +252,53 @@ public class ApplicationService : IApplicationService
             l.TalukaID, l.Taluka, l.VillageID, l.Village
         )).ToList()
     );
+
+    // ── FINAL SUBMIT ─────────────────────────────────────────────────────
+    public async Task<FinalSubmitResponseDto> FinalSubmitAsync(FinalSubmitDto dto)
+    {
+        var application = await _context.Applications
+            .Include(a => a.Enrollment)
+            .Include(a => a.LandDetails.Where(l => !l.Deleted))
+            .Include(a => a.LocationDetails.Where(l => !l.Deleted))
+            .FirstOrDefaultAsync(a => a.ApplicationID == dto.ApplicationID && !a.Deleted)
+            ?? throw new KeyNotFoundException($"Application {dto.ApplicationID} not found.");
+
+        var errors = new List<string>();
+
+        if (!application.IsConsentGiven)
+            errors.Add("Consent has not been given.");
+
+        if (application.IsSubmitted)
+            errors.Add("Application is already submitted.");
+
+        if (!application.LandDetails.Any())
+            errors.Add("No land details found.");
+
+        if (!application.LocationDetails.Any())
+            errors.Add("No location details found.");
+
+        // NEW: block submission if the signed consent PDF was never uploaded
+        var hasSignedDocument = await _context.ApplicationDocuments
+            .AnyAsync(d => d.ApplicationID == dto.ApplicationID
+                        && d.DocumentType == "SignedConsent"
+                        && d.IsActive && !d.Deleted);
+
+        if (!hasSignedDocument)
+            errors.Add("Signed consent document has not been uploaded.");
+
+        if (errors.Any())
+            return new FinalSubmitResponseDto(false, string.Join(" | ", errors), null);
+
+        application.IsSubmitted = true;
+        application.SubmittedAt = DateTime.Now;
+        application.StageID = 1;
+        application.LastModifiedOn = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("[Submit] ApplicationID={ID} submitted. Ref={Ref}",
+            dto.ApplicationID, application.ReferenceNo);
+
+        return new FinalSubmitResponseDto(true, "Application submitted successfully.", application.ReferenceNo);
+    }
 }

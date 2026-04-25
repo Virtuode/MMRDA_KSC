@@ -50,6 +50,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// ── Document Storage ──────────────────────────────────────────────────────
+builder.Services.Configure<DocumentStorageSettings>(
+    builder.Configuration.GetSection("DocumentStorage"));
+
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+
 builder.Services.AddControllers();
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -58,7 +64,10 @@ var app = builder.Build();
 
 // ── Middleware Pipeline (ORDER MATTERS) ───────────────────────────────────
 
-app.UseMiddleware<ExceptionMiddleware>();   // 1. Global error handler — FIRST
+app.UseMiddleware<ExceptionMiddleware>(
+// Required so IFormFile works — without this, file uploads will return 415
+app.UseStaticFiles()
+);   // 1. Global error handler — FIRST
 
 if (app.Environment.IsDevelopment())
 {
