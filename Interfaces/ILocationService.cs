@@ -8,5 +8,5 @@ public interface ILocationService
     Task<List<DistrictDto>> GetDistrictsByStateAsync(int stateId);
     Task<List<CityDto>> GetCitiesByStateAsync(int stateId);
     Task<List<TalukaDto>> GetTalukasByDistrictAsync(int districtId);
-    Task<List<VillageDto>> GetVillagesByTalukaAsync(int talukaId);
+    Task<List<VillageDto>> GetVillagesByDistrictAsync(int districtId); // FIXED: was ByTaluka
 }
