@@ -64,10 +64,9 @@ var app = builder.Build();
 
 // ── Middleware Pipeline (ORDER MATTERS) ───────────────────────────────────
 
-app.UseMiddleware<ExceptionMiddleware>(
-// Required so IFormFile works — without this, file uploads will return 415
-app.UseStaticFiles()
-);   // 1. Global error handler — FIRST
+app.UseMiddleware<ExceptionMiddleware>();
+// 1. Global error handler — FIRST
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {

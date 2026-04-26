@@ -39,18 +39,11 @@ public class AppDbContext : DbContext
             entity.ToTable("Application");
             entity.HasKey(a => a.ApplicationID);
             entity.HasIndex(a => a.ReferenceNo).IsUnique().HasDatabaseName("IX_Application_ReferenceNo");
-
-            entity.Property(a => a.Age).HasColumnName("Age");
-            entity.Property(a => a.SelectedDeclaration).HasColumnName("SelectedDeclaration");
-            entity.Property(a => a.ConsentSignedAt).HasColumnName("ConsentSignedAt");
-            entity.Property(a => a.IsConsentGiven).HasColumnName("IsConsentGiven");
-            entity.Property(a => a.IsSubmitted).HasColumnName("IsSubmitted");
-            entity.Property(a => a.SubmittedAt).HasColumnName("SubmittedAt");
         });
 
         modelBuilder.Entity<LandDetail>(entity =>
         {
-            entity.ToTable("LandDetaill"); // Double 'l' as per DB
+            entity.ToTable("LandDetail"); // Double 'l' as per DB
             entity.HasKey(l => l.LandDetailID);
             entity.Property(l => l.TotalAreaHecter).HasPrecision(18, 2);
         });

@@ -19,6 +19,11 @@ public class Enrollment
     public string? State { get; set; }
     public int? CityID { get; set; }
     public string? City { get; set; }
+
+    public string? District { get; set; }
+    public int? DistrictID { get; set; }
+    public string? Taluka { get; set; }
+    public int? TalukaID { get; set; }
     public string? Pincode { get; set; }
     public bool IsActive { get; set; } = true;
     public bool Deleted { get; set; } = false;

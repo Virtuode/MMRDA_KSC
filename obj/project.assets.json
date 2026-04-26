@@ -4383,11 +4383,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\patha\\Documents\\consentapi\\mmrdaconsent.API\\mmrdaconsent.API.csproj",
+      "projectUniqueName": "C:\\Users\\patha\\Documents\\consentapi\\MMRDACONSENT.API\\mmrdaconsent.API.csproj",
       "projectName": "mmrdaconsent.API",
-      "projectPath": "C:\\Users\\patha\\Documents\\consentapi\\mmrdaconsent.API\\mmrdaconsent.API.csproj",
+      "projectPath": "C:\\Users\\patha\\Documents\\consentapi\\MMRDACONSENT.API\\mmrdaconsent.API.csproj",
       "packagesPath": "C:\\Users\\patha\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\patha\\Documents\\consentapi\\mmrdaconsent.API\\obj\\",
+      "outputPath": "C:\\Users\\patha\\Documents\\consentapi\\MMRDACONSENT.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\patha\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -79,9 +79,13 @@ public class ApplicationService : IApplicationService
         enrollment.Address1 = dto.Address1;
         enrollment.Address2 = dto.Address2;
         enrollment.StateID = dto.StateID;
-        enrollment.State = stateName;       // FIXED: was never set
+        enrollment.State = dto.State;
         enrollment.CityID = dto.CityID;
-        enrollment.City = cityName;         // FIXED: was never set
+        enrollment.City = dto.City;
+        enrollment.DistrictID = dto.DistrictID;
+        enrollment.District = dto.District;
+        enrollment.TalukaID = dto.TalukaID;
+        enrollment.Taluka = dto.Taluka;
         enrollment.Pincode = dto.Pincode;
         enrollment.LastModifiedOn = DateTime.Now;
 
@@ -124,7 +128,7 @@ public class ApplicationService : IApplicationService
             };
             _context.LandDetails.Add(land);
 
-            // FIXED: resolve District / Taluka / Village names before saving
+
             string? districtName = null;
             string? talukaName = null;
             string? villageName = null;
@@ -151,11 +155,11 @@ public class ApplicationService : IApplicationService
             {
                 ApplicationID = application.ApplicationID,
                 DistrictID = dto.DistrictID,
-                District = districtName,    // FIXED: was always null
+                District = districtName,
                 TalukaID = dto.TalukaID,
-                Taluka = talukaName,        // FIXED: was always null
+                Taluka = talukaName,
                 VillageID = dto.VillageID,
-                Village = villageName,      // FIXED: was always null
+                Village = villageName,
                 CompensationTypeID = dto.CompensationTypeID,
                 IsActive = true,
                 Deleted = false,
@@ -190,34 +194,6 @@ public class ApplicationService : IApplicationService
         return app == null ? null : MapApplication(app);
     }
 
-    // ── CONSENT ──────────────────────────────────────────────────────────
-
-    public async Task<ApplicationResponseDto> SaveConsentAsync(SaveConsentDto dto)
-    {
-        var application = await _context.Applications.FindAsync(dto.ApplicationID)
-            ?? throw new KeyNotFoundException($"Application {dto.ApplicationID} not found.");
-
-        if (application.IsSubmitted)
-            throw new InvalidOperationException("Cannot modify a submitted application.");
-
-        application.Age = dto.Age;
-        application.SelectedDeclaration = dto.SelectedDeclaration;
-        application.ConsentSignedAt = DateTime.Now;
-        application.IsConsentGiven = true;
-        application.LastModifiedOn = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-
-        var result = await GetApplicationByIdAsync(dto.ApplicationID);
-
-        if (result == null)
-        {
-            _logger.LogWarning("Application not found for ID={ID}", dto.ApplicationID);
-            return null!;
-        }
-
-        return result;
-    }
 
 
 
@@ -234,16 +210,14 @@ public class ApplicationService : IApplicationService
     private static EnrollmentResponseDto MapEnrollment(Enrollment e) => new(
         e.EnrollmentID, e.FirstName, e.MiddleName, e.LastName,
         e.MobileNo, e.AadharNumber, e.Address1, e.Address2,
-        e.StateID, e.CityID, e.Pincode
+        e.StateID, e.State, e.CityID, e.City, e.DistrictID,
+         e.District, e.TalukaID, e.Taluka, e.Pincode
     );
 
     private static ApplicationResponseDto MapApplication(Application a) => new(
         a.ApplicationID,
         a.EnrollmentID,
         a.ReferenceNo,
-        a.IsConsentGiven,
-        a.IsSubmitted,
-        a.SubmittedAt,
         a.LandDetails.Select(l => new LandDetailDto(
             l.LandDetailID, l.GatNo, l.SurveyNo, l.TotalAreaHecter
         )).ToList(),
@@ -265,12 +239,6 @@ public class ApplicationService : IApplicationService
 
         var errors = new List<string>();
 
-        if (!application.IsConsentGiven)
-            errors.Add("Consent has not been given.");
-
-        if (application.IsSubmitted)
-            errors.Add("Application is already submitted.");
-
         if (!application.LandDetails.Any())
             errors.Add("No land details found.");
 
@@ -288,10 +256,6 @@ public class ApplicationService : IApplicationService
 
         if (errors.Any())
             return new FinalSubmitResponseDto(false, string.Join(" | ", errors), null);
-
-        application.IsSubmitted = true;
-        application.SubmittedAt = DateTime.Now;
-        application.StageID = 1;
         application.LastModifiedOn = DateTime.Now;
 
         await _context.SaveChangesAsync();

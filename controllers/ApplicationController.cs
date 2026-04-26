@@ -55,18 +55,11 @@ public class ApplicationController : ControllerBase
     }
 
     // ============================================================
-    // FINALIZATION PHASE (Steps 5 & 6)
+    // FINALIZATION PHASE (Steps 5 )
     // ============================================================
 
-    /// <summary>Step 5 — Save consent declaration</summary>
-    [HttpPost("consent")]
-    public async Task<IActionResult> SaveConsent([FromBody] SaveConsentDto dto)
-    {
-        var result = await _service.SaveConsentAsync(dto);
-        return Ok(new { success = true, data = result });
-    }
 
-    /// <summary>Step 6 — Final submission</summary>
+    /// <summary>Step 5 — Final submission</summary>
     [HttpPost("submit")]
     public async Task<IActionResult> FinalSubmit([FromBody] FinalSubmitDto dto)
     {

@@ -40,8 +40,7 @@ public class DocumentService : IDocumentService
         var application = await _context.Applications.FindAsync(applicationId)
             ?? throw new KeyNotFoundException($"Application {applicationId} not found.");
 
-        if (application.IsSubmitted)
-            throw new InvalidOperationException("Cannot upload documents to a submitted application.");
+
 
         // ── 2. Validate file ──
         if (file == null || file.Length == 0)

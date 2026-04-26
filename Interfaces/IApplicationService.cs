@@ -12,7 +12,6 @@ public interface IApplicationService
     // Application
     Task<ApplicationResponseDto> CreateApplicationAsync(CreateApplicationDto dto);
     Task<ApplicationResponseDto?> GetApplicationByIdAsync(int applicationId);
-    Task<ApplicationResponseDto> SaveConsentAsync(SaveConsentDto dto);
     Task<FinalSubmitResponseDto> FinalSubmitAsync(FinalSubmitDto dto);
 
 }

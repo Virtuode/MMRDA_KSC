@@ -17,11 +17,11 @@ public class AuthController : ControllerBase
         _appService = appService;
     }
 
-    /// <summary>Step 1 — Send OTP to mobile number</summary>
     [HttpPost("send-otp")]
     public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.MobileNo) || dto.MobileNo.Length != 10)
+        // FIXED: int validation — check it's a valid 10-digit number
+        if (dto.MobileNo.ToString().Length != 10)
             return BadRequest(new { success = false, message = "Invalid mobile number." });
 
         var sent = await _otpService.SendOtpAsync(dto.MobileNo);
@@ -31,7 +31,6 @@ public class AuthController : ControllerBase
         return Ok(new { success = true, message = "OTP sent successfully." });
     }
 
-    /// <summary>Step 2 — Verify OTP and get/create enrollment</summary>
     [HttpPost("verify-otp")]
     public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto dto)
     {
@@ -39,7 +38,6 @@ public class AuthController : ControllerBase
         if (!valid)
             return BadRequest(new { success = false, message = "Invalid or expired OTP." });
 
-        // Auto create enrollment if first time
         var enrollment = await _appService.GetOrCreateEnrollmentAsync(dto.MobileNo);
 
         return Ok(new

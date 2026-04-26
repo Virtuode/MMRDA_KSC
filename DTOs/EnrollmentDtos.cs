@@ -14,7 +14,13 @@ public record CreateEnrollmentDto(
     string? Address1,
     string? Address2,
     int? StateID,
+    string? State,
     int? CityID,
+    string? City,
+    int? DistrictID,
+    string? District,
+    int? TalukaID,
+    string? Taluka,
     string? Pincode
 );
 
@@ -29,6 +35,12 @@ public record EnrollmentResponseDto(
     string? Address1,
     string? Address2,
     int? StateID,
+    string? State,
     int? CityID,
+    string? City,
+    int? DistrictID,
+    string? District,
+    int? TalukaID,
+    string? Taluka,
     string? Pincode
 );

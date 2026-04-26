@@ -16,15 +16,9 @@ public record CreateApplicationDto(
     int? CompensationTypeID
 );
 
-/// <summary>Step 5 — Data for saving legal consent</summary>
-public record SaveConsentDto(
-    int ApplicationID,
-    int Age,
-    string SelectedDeclaration
-);
 
-/// <summary>Step 6 — Final application submission request</summary>
 public record FinalSubmitDto(int ApplicationID);
+
 
 
 // ============================================================
@@ -36,9 +30,6 @@ public record ApplicationResponseDto(
     int ApplicationID,
     int EnrollmentID,
     string? ReferenceNo,
-    bool IsConsentGiven,
-    bool IsSubmitted,
-    DateTime? SubmittedAt,
     List<LandDetailDto> LandDetails,
     List<LocationDetailDto> LocationDetails
 );
